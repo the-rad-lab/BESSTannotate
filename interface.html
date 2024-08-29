@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Annotation DEMO</title>
+    <script src="js/jquery.js"></script>
+    <script type ="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.5.0/fabric.min.js"></script>
+    <!-- Stylesheets -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="light-blue lighten-1" role="navigation">
+    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Interface for BESST System Annotation</a></div>
+    </nav>
+
+    <div class='parent'> <!-- blue box -->
+
+
+      <div class="child"> <!-- video and controls -->
+        <div class="video-player">
+          <video class="video" height="600" id="video" loop> 
+            <source src="assets/videos/videoholder.mp4" type="video/mp4"/>
+            <source src="assets/videos/videoholder.mp4" type="video/webm"/>
+            <p>Your browser doesn't support HTML5 video.</p>
+          </video>
+
+          <div class="controls">
+            <div class="container">
+            <div class="progress">
+              <div class="progress__filled"></div> <!-- this is invisible -->
+            </div>
+          </div>
+          </div>
+        </div>
+        <!-- <br> -->
+        <!-- <button type="button" data-skip="-0.1">⏪</button>
+        <button type="button" class="toggleButton" title="Toggle Play">▶️</button>
+        <button type="button" data-skip="0.1">⏩</button> -->
+        <button type="button" data-skip="-0.1">- 0.1s</button>
+        <button type="button" class="toggleButton" title="Toggle Play">Play</button>
+        <button type="button" data-skip="0.1">+ 0.1s</button>
+        <button type="button" class="muteButton">Mute</button>
+        <br><br>
+
+
+      <div id="videoInfoArea">
+      
+      <form name="form" id="form2">
+
+        <div class="input-field col s4">
+        <select name="optvid" id="videoSel1" size="1">
+            <option value="" selected="selected">Select Video</option>
+            <option value="video1_angry_subject0" data-icon="assets/videos/video_1.png">Video 1 (angry), Subject 0</option>
+            <option value="video1_angry_subject1" data-icon="assets/videos/video_1.png">Video 1 (angry), Subject 1</option>
+            <option value="video2_annoyed_subject0" data-icon="assets/videos/video_2.png">Video 2 (annoyed), Subject 0</option>
+            <option value="video2_annoyed_subject1" data-icon="assets/videos/video_2.png">Video 2 (annoyed), Subject 1</option>
+            <option value="video3_happy_subject0" data-icon="assets/videos/video_3.png">Video 3 (happy), Subject 0</option>
+            <option value="video3_happy_subject1" data-icon="assets/videos/video_3.png">Video 3 (happy), Subject 1</option>
+            <option value="video3_happy_subject2" data-icon="assets/videos/video_3.png">Video 3 (happy), Subject 2</option>
+            <option value="video3_happy_subject3" data-icon="assets/videos/video_3.png">Video 3 (happy), Subject 3</option>
+            <option value="video4_surprised_subject0" data-icon="assets/videos/video_4.png">Video4 (surprised), Subject 0</option>
+        </select>
+        
+        <!-- <br> -->
+        <button type="button" onclick="pickVideo()">Load Video</button>
+        </div>
+
+      </form>
+      
+      <br><p style="font-family:Arial;"> OR </p><br>
+      
+
+      <!-- code for custom video upload -->
+      <form name="form" id="form3">
+        <input type="file" id="vidFile"/>
+        <!-- <audio id="sound" controls></audio> -->
+      </form>
+
+     </div>
+
+      </div>
+
+      <div id="divTableDataHolder" class="child"> <!-- annotation and controls -->
+      <p style="font-family:Arial;">SETUP MODE: Select (up to 8) elements to annotate using the buttons below the canvas.</p>
+      <p style="font-family:Arial;"><i>Note: Editing these is not currently supported. Reload the page to reset the palette.</i></p> 
+      <p style="font-family:Arial;">DRAWING MODE: Add boxes to indicate action strokes.</p>
+      <p style="font-family:Arial;">EDITING MODE: Refine, resize, reposition, and/or remove.</p>
+      <p style="font-family:Arial;"><i>Note: Vertical extent indicates temporal duration, and horizontal extent indicates intensity.</i></p> 
+  <!-- <p style="font-family:Arial;">Export: Download spreadsheet of annotation using the button below the canvas.</p> -->
+  <br>
+        <div class="buttons">
+         <button id="clear">&nbsp;Restart&nbsp;</button> 
+         <button id="columns">&nbsp;Setup Mode&nbsp;</button>
+         <button id="draw">&nbsp;Drawing Mode&nbsp;</button>
+         <button id="select">&nbsp;Editing Mode&nbsp;</button>
+         <button id="delete">&nbsp;Delete selected object(s)&nbsp;</button>
+        </div>
+
+        <div class="progress2">
+          <div><img id="timerange" src="assets/videos/videoholder.png" alt="Range where label is indicated" width="40px"></div> <!-- time range info image -->
+          <div class="progress__filled2"></div> <!-- progress bar (clone) -->
+        </div>
+
+        <div style="position: relative;">
+          <canvas id="canvas" width="600" height="400"
+             style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+          <canvas id="canvas2" width="600" height="400"
+             style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+          <canvas id="canvas3" width="600" height="40"
+             style="position: absolute; left: 0; top: 600; z-index: 1;"></canvas> 
+          <canvas id="canvas4" width="600" height="400"
+              style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+        </div>
+
+  
+      <br><button type="button" id="excel" onclick="downloadCSV()">Save to Excel</button>
+      <!-- <input type="button" id="excel" value="Screenshot" onclick="generate()"> -->
+      <!-- <p style="font-family:Arial;"><i>Bug: This function may break after long editing sessions. It is best to draw annotation on paper and transfer.</i></p>  -->
+
+      <div id="addColumsArea">
+      <!-- <form name="form" id="form">
+        <select name="optone" id="componentSel" size="1">
+            <option value="" selected="selected">Select Component</option>
+        </select>
+
+        <select name="opttwo" id="categorySel" size="1">
+            <option value="" selected="selected">Select Category</option>
+        </select>
+
+        <select name="optthree" id="elementSel" size="1">
+            <option value="" selected="selected">Select Element</option>
+        </select>
+      </form> -->
+
+      <form name="form" id="form">
+        <!-- <div class="input-field col s1"> -->
+        <select name="optone" id="elSel" searchname="myselectsearch" searchable="Search Elements">
+            <option value="" selected="selected">Select an Element</option>
+            <optgroup label="BODY">
+            <optgroup label="Body Parts">
+            <option value="Head" data-icon="assets/symbols/Head.svg">Head</option>
+            <option value="Center of Levity" data-icon="assets/symbols/Center of Levity.svg">Center of Levity</option>
+            <option value="Waist" data-icon="assets/symbols/Waist.svg">Waist</option>
+            <option value="Center of Gravity" data-icon="assets/symbols/Center of Gravity.svg">Center of Gravity</option>
+            <option value="Shoulder L" data-icon="assets/symbols/Shoulder L.svg">Shoulder (Left)</option>
+            <option value="Shoulder R" data-icon="assets/symbols/Shoulder R.svg">Shoulder (Right)</option>
+            <option value="Elbow L" data-icon="assets/symbols/Elbow L.svg">Elbow (Left)</option>
+            <option value="Elbow R" data-icon="assets/symbols/Elbow R.svg">Elbow (Right)</option>
+            <option value="Wrist L" data-icon="assets/symbols/Wrist L.svg">Wrist (Left)</option>
+            <option value="Wrist R" data-icon="assets/symbols/Wrist R.svg">Wrist (Right)</option>
+            <option value="Fingers L" data-icon="assets/symbols/Fingers L.svg">Fingers (Left)</option>
+            <option value="Fingers R" data-icon="assets/symbols/Fingers R.svg">Fingers (Right)</option>
+            <option value="Hip L" data-icon="assets/symbols/Hip L.svg">Hip (Left)</option>
+            <option value="Hip R" data-icon="assets/symbols/Hip R.svg">Hip (Right)</option>
+            <option value="Knee L" data-icon="assets/symbols/Knee L.svg">Knee (Left)</option>
+            <option value="Knee R" data-icon="assets/symbols/Knee R.svg">Knee (Right)</option>
+            <option value="Ankle L" data-icon="assets/symbols/Ankle L.svg">Ankle (Left)</option>
+            <option value="Ankle R" data-icon="assets/symbols/Ankle R.svg">Ankle (Right)</option>
+            <option value="Toes L" data-icon="assets/symbols/Toes L.svg">Toes (Left)</option>
+            <option value="Toes R" data-icon="assets/symbols/Toes R.svg">Toes (Right)</option>
+            <optgroup label="Basic Body Actions">
+            <option value="Change of Support" data-icon="assets/symbols/Change of Support.svg">Change of Support</option>
+            <option value="Change of Support (series)" data-icon="assets/symbols/Change of Support (series).svg">Change of Support (series)</option>
+            <option value="Posture" data-icon="assets/symbols/Posture.svg">Posture</option>
+            <option value="Gesture" data-icon="assets/symbols/Gesture.svg">Gesture</option>
+            <option value="Condense" data-icon="assets/symbols/Condense.svg">Condense</option>
+            <option value="Expand" data-icon="assets/symbols/Expand.svg">Expand</option>
+            <option value="Rotate" data-icon="assets/symbols/Rotate.svg">Rotate</option>
+            <option value="Hold" data-icon="assets/symbols/Hold.svg">Hold</option>
+            <option value="Focus" data-icon="assets/symbols/Focus.svg">Focus</option>
+            <option value="Vocalize" data-icon="assets/symbols/Vocalize.svg">Vocalize</option>
+            <option value="Touch" data-icon="assets/symbols/Touch.svg">Touch</option>
+            <option value="Travel" data-icon="assets/symbols/Travel.svg">Travel</option>
+            <option value="Roll" data-icon="assets/symbols/Roll.svg">Roll</option>
+            <option value="Slide" data-icon="assets/symbols/Slide.svg">Slide</option>
+            <option value="Walk" data-icon="assets/symbols/Walk.svg">Walk</option>
+            <option value="Run" data-icon="assets/symbols/Run.svg">Run</option>
+            <option value="Jump" data-icon="assets/symbols/Jump.svg">Slide</option>
+            <optgroup label="Features">
+            <option value="Axis of Length" data-icon="assets/symbols/Axis of Length.svg">Axis of Length</option>
+            <option value="Upper" data-icon="assets/symbols/Upper.svg">Upper Body</option>
+            <option value="Lower" data-icon="assets/symbols/Lower.svg">Lower Body</option>
+            <option value="Midline" data-icon="assets/symbols/Midline.svg">Midline</option>
+            <option value="Left" data-icon="assets/symbols/Left.svg">Left Side</option>
+            <option value="Right" data-icon="assets/symbols/Right.svg">Right Side</option>
+            <option value="Core" data-icon="assets/symbols/Core.svg">Core</option>
+            <option value="Proximal" data-icon="assets/symbols/Proximal.svg">Proximal</option>
+            <option value="Distal" data-icon="assets/symbols/Distal.svg">Distal</option>
+            <!-- <option value="Face" data-icon="assets/symbols/Face.svg">Face</option> -->
+            <optgroup label="Breath">
+            <option value="Breath" data-icon="assets/symbols/Breath.svg">Breath</option>
+            <option value="Inhale" data-icon="assets/symbols/Inhale.svg">Inhale</option>
+            <option value="Exhale" data-icon="assets/symbols/Exhale.svg">Exhale</option>
+            <optgroup label="Sensing">
+            <option value="Weight-sensing" data-icon="assets/symbols/Weight-sensing.svg">Weight-sensing</option>
+            <option value="Flow-sensing" data-icon="assets/symbols/Flow-sensing.svg">Flow-sensing</option>
+            <option value="Passive-weight" data-icon="assets/symbols/Passive-weight.svg">Passive-weight</option>
+            <optgroup label="Patterns of Body Organization">
+            <option value="Radial Symmetry" data-icon="assets/symbols/Radial Symmetry.svg">Radial Symmetry</option>
+            <option value="Spinal" data-icon="assets/symbols/Spinal.svg">Spinal</option>
+            <option value="Core-Distal" data-icon="assets/symbols/Core-Distal.svg">Core-Distal</option>
+            <option value="Head-Tail" data-icon="assets/symbols/Head-Tail.svg">Head-Tail</option>
+            <option value="Upper-Lower" data-icon="assets/symbols/Upper-Lower.svg">Upper-Lower</option>
+            <option value="Right-Left" data-icon="assets/symbols/Right-Left.svg">Right-Left</option>
+            <option value="Cross-lateral" data-icon="assets/symbols/Cross-lateral.svg">Cross-lateral</option>
+
+            <optgroup label="SPACE">
+            <optgroup label="Zones">
+            <option value="High Zone" data-icon="assets/symbols/High Zone.svg">High Zone</option>
+            <option value="Low Zone" data-icon="assets/symbols/Low Zone.svg">Low Zone</option>
+            <option value="Right Zone" data-icon="assets/symbols/Right Zone.svg">Right Zone</option>
+            <option value="Left Zone" data-icon="assets/symbols/Left Zone.svg">Left Zone</option>
+            <option value="Front Zone" data-icon="assets/symbols/Front Zone.svg">Front Zone</option>
+            <option value="Back Zone" data-icon="assets/symbols/Back Zone.svg">Back Zone</option>
+            <optgroup label="Reach Space">
+            <option value="Near" data-icon="assets/symbols/Near.svg">Near</option>
+            <option value="Mid" data-icon="assets/symbols/Mid.svg">Mid</option>
+            <option value="Far" data-icon="assets/symbols/Far.svg">Far</option>
+            <optgroup label="Planes">
+            <option value="Vertical" data-icon="assets/symbols/Vertical.svg">Vertical</option>
+            <option value="Sagittal" data-icon="assets/symbols/Sagittal.svg">Sagittal</option>
+            <option value="Horizontal" data-icon="assets/symbols/Horizontal.svg">Horizontal</option>
+            <optgroup label="Pathways">
+            <option value="Central" data-icon="assets/symbols/Central.svg">Central</option>
+            <option value="Peripheral" data-icon="assets/symbols/Peripheral.svg">Peripheral</option>
+            <option value="Transverse" data-icon="assets/symbols/Transverse.svg">Transverse</option>
+            <optgroup label="Spatial Pulls">
+            <option value="Middle" data-icon="assets/symbols/Middle.svg">Middle</option>
+            <option value="Forward Middle" data-icon="assets/symbols/Forward Middle.svg">Forward Middle</option>
+            <option value="Left Middle" data-icon="assets/symbols/Left Middle.svg">Left Middle</option>
+            <option value="Right Middle" data-icon="assets/symbols/Right Middle.svg">Right Middle</option>
+            <option value="Back Middle" data-icon="assets/symbols/Back Middle.svg">Back Middle</option>
+            <option value="Place Middle" data-icon="assets/symbols/Middle.svg">Place Middle</option>
+            <option value="Left Forward Middle" data-icon="assets/symbols/Left Forward Middle.svg">Left Forward Middle</option>
+            <option value="Right Forward Middle" data-icon="assets/symbols/Right Forward Middle.svg">Right Forward Middle</option>
+            <option value="Left Back Middle" data-icon="assets/symbols/Left Back Middle.svg">Left Back Middle</option>
+            <option value="Right Back Middle" data-icon="assets/symbols/Right Back Middle.svg">Right Back Middle</option>
+            <option value="Low" data-icon="assets/symbols/Low.svg">Low</option>
+            <option value="Forward Low" data-icon="assets/symbols/Forward Low.svg">Forward Low</option>
+            <option value="Left Low" data-icon="assets/symbols/Left Low.svg">Left Low</option>
+            <option value="Right Low" data-icon="assets/symbols/Right Low.svg">Right Low</option>
+            <option value="Back Low" data-icon="assets/symbols/Back Low.svg">Back Low</option>
+            <option value="Place Low" data-icon="assets/symbols/Low.svg">Place Low</option>
+            <option value="Left Forward Low" data-icon="assets/symbols/Left Forward Low.svg">Left Forward Low</option>
+            <option value="Right Forward Low" data-icon="assets/symbols/Right Forward Low.svg">Right Forward Low</option>
+            <option value="Left Back Low" data-icon="assets/symbols/Left Back Low.svg">Left Back Low</option>
+            <option value="Right Back Low" data-icon="assets/symbols/Right Back Low.svg">Right Back Low</option>
+            <option value="High" data-icon="assets/symbols/High.svg">High</option>
+            <option value="Forward High" data-icon="assets/symbols/Forward High.svg">Forward High</option>
+            <option value="Left High" data-icon="assets/symbols/Left High.svg">Left High</option>
+            <option value="Right High" data-icon="assets/symbols/Right High.svg">Right High</option>
+            <option value="Back High" data-icon="assets/symbols/Back High.svg">Back High</option>
+            <option value="Place High" data-icon="assets/symbols/High.svg">Place High</option>
+            <option value="Left Forward High" data-icon="assets/symbols/Left Forward High.svg">Left Forward High</option>
+            <option value="Right Forward High" data-icon="assets/symbols/Right Forward High.svg">Right Forward High</option>
+            <option value="Left Back High" data-icon="assets/symbols/Left Back High.svg">Left Back High</option>
+            <option value="Right Back High" data-icon="assets/symbols/Right Back High.svg">Right Back High</option>
+
+            <optgroup label="TIME">
+            <optgroup label="Sequencing">
+            <option value="Repetition" data-icon="assets/symbols/Repetition.svg">Repetition</option>
+            <option value="Reversal" data-icon="assets/symbols/Reversal.svg">Reversal</option>
+            <option value="Retrograde" data-icon="assets/symbols/Retrograde.svg">Retrograde</option>
+            <option value="Accumulation" data-icon="assets/symbols/Accumulation.svg">Accumulation</option>
+            <option value="Theme and variation" data-icon="assets/symbols/Theme and variation.svg">Theme and variation</option>
+            <option value="Canon" data-icon="assets/symbols/Canon.svg">Canon</option>
+            <option value="Echoing" data-icon="assets/symbols/Echoing.svg">Echoing</option>
+            <option value="Out-of-step" data-icon="assets/symbols/Out-of-step.svg">Out-of-step</option>
+            <optgroup label="Emphasis">
+            <option value="Emphasis" data-icon="assets/symbols/Emphasis.svg">Emphasis</option>
+            <optgroup label="Phrasing Bows">
+            <option value="Even" data-icon="assets/symbols/Even.svg">Even</option>
+            <option value="Impulsive" data-icon="assets/symbols/Impulsive.svg">Impulsive</option>
+            <option value="Impactive" data-icon="assets/symbols/Impactive.svg">Impactive</option>
+            <option value="Swing" data-icon="assets/symbols/Swing.svg">Swing</option>
+            <option value="Becoming" data-icon="assets/symbols/Becoming.svg">Becoming</option>
+            <option value="Diminishing" data-icon="assets/symbols/Diminishing.svg">Diminishing</option>
+            <option value="Vibratory" data-icon="assets/symbols/Vibratory.svg">Vibratory</option>
+
+            <optgroup label="SHAPE">
+            <optgroup label="Still Shape Forms">
+            <option value="Pin" data-icon="assets/symbols/Pin.svg">Pin</option>
+            <option value="Ball" data-icon="assets/symbols/Ball.svg">Ball</option>
+            <option value="Wall" data-icon="assets/symbols/Wall.svg">Wall</option>
+            <option value="Tetrahedron" data-icon="assets/symbols/Tetrahedron.svg">Tetrahedron</option>
+            <option value="Screw" data-icon="assets/symbols/Screw.svg">Screw</option>
+            <optgroup label="Primary Shape Patterns">
+            <option value="Concave" data-icon="assets/symbols/Concave.svg">Concave</option>
+            <option value="Convex" data-icon="assets/symbols/Convex.svg">Convex</option>
+            <option value="Gather" data-icon="assets/symbols/Gather.svg">Gather</option>
+            <option value="Scatter" data-icon="assets/symbols/Scatter.svg">Scatter</option>
+            <optgroup label="Modes of Shape Change">
+            <option value="Shape Flow" data-icon="assets/symbols/Shape Flow.svg">Shape Flow</option>
+            <option value="Directional" data-icon="assets/symbols/Directional.svg">Directional</option>
+            <option value="Arc-like" data-icon="assets/symbols/Arc-like.svg">Arc-like</option>
+            <option value="Spoke-like" data-icon="assets/symbols/Spoke-like.svg">Spoke-like</option>
+            <option value="Shaping" data-icon="assets/symbols/Shaping.svg">Shaping</option>
+            <option value="Inner Shaping" data-icon="assets/symbols/Inner Shaping.svg">Inner Shaping</option>
+            <optgroup label="Shape Qualities">
+            <option value="Rising" data-icon="assets/symbols/Rising.svg">Rising</option>
+            <option value="Spreading" data-icon="assets/symbols/Spreading.svg">Spreading</option>
+            <option value="Enclosing" data-icon="assets/symbols/Enclosing.svg">Enclosing</option>
+            <option value="Retreating" data-icon="assets/symbols/Retreating.svg">Retreating</option>
+            <option value="Advancing" data-icon="assets/symbols/Advancing.svg">Advancing</option>
+            <option value="Sinking" data-icon="assets/symbols/Sinking.svg">Sinking</option>
+            <optgroup label="Relationship Bows">
+            <option value="Awareness" data-icon="assets/symbols/Awareness.svg">Awareness</option>
+            <option value="Addressing" data-icon="assets/symbols/Addressing.svg">Addressing</option>
+            <option value="Nearby" data-icon="assets/symbols/Nearby.svg">Nearby</option>
+            <option value="Contact" data-icon="assets/symbols/Contact.svg">Contact</option>
+            <option value="Support" data-icon="assets/symbols/Support.svg">Support</option>
+
+            <optgroup label="EFFORT">
+            <optgroup label="Factors">
+            <option value="Sudden" data-icon="assets/symbols/Sudden.svg">Sudden</option>
+            <option value="Sustained" data-icon="assets/symbols/Sustained.svg">Sustained</option>
+            <option value="Strong" data-icon="assets/symbols/Strong.svg">Strong</option>
+            <option value="Light" data-icon="assets/symbols/Light.svg">Light</option>
+            <option value="Direct" data-icon="assets/symbols/Direct.svg">Direct</option>
+            <option value="Indirect" data-icon="assets/symbols/Indirect.svg">Indirect</option>
+            <option value="Free" data-icon="assets/symbols/Free.svg">Free</option>
+            <option value="Bound" data-icon="assets/symbols/Bound.svg">Bound</option>
+            <optgroup label="States">
+            <option value="Mobile" data-icon="assets/symbols/Mobile.svg">Mobile</option>
+            <option value="Remote" data-icon="assets/symbols/Remote.svg">Remote</option>
+            <option value="Dream" data-icon="assets/symbols/Dream.svg">Dream</option>
+            <option value="Stable" data-icon="assets/symbols/Stable.svg">Stable</option>
+            <option value="Rhythm" data-icon="assets/symbols/Rhythm.svg">Rhythm</option>
+            <option value="Awake" data-icon="assets/symbols/Awake.svg">Awake</option>
+            <optgroup label="Drives">
+            <option value="Action" data-icon="assets/symbols/Action.svg">Action</option>
+            <option value="Passion" data-icon="assets/symbols/Passion.svg">Passion</option>
+            <option value="Spell" data-icon="assets/symbols/Spell.svg">Spell</option>
+            <option value="Vision" data-icon="assets/symbols/Vision.svg">Vision</option>
+
+
+        </select>
+
+        <!-- <select name="opttwo" id="spaceSel" size="1">
+            <option value="" selected="selected">Select a Space Element</option>
+            <optgroup label="Zones">
+            <option value="High Zone" data-icon="assets/symbols/High Zone.svg">High Zone</option>
+            <optgroup label="Reach Space">
+            <option value="Near" data-icon="assets/symbols/Near.svg">Near</option>
+            <option value="Mid" data-icon="assets/symbols/Mid.svg">Mid</option>
+        </select>
+
+        <select name="optthree" id="timeSel" size="1">
+            <option value="" selected="selected">Select a Time Element</option>
+            <optgroup label="Sequencing">
+            <option value="Repetition" data-icon="assets/symbols/Repetition.svg">Repetition</option>
+        </select>
+
+        <select name="optfour" id="shapeSel" size="1">
+            <option value="" selected="selected">Select a Shape Element</option>
+            <optgroup label="Still Shape Forms">
+            <option value="Pin" data-icon="assets/symbols/Pin.svg">Pin</option>
+        </select>
+
+        <select name="optfive" id="effortSel" size="1">
+            <option value="" selected="selected">Select an Effort Element</option>
+            <optgroup label="Factors">
+            <option value="Sudden" data-icon="assets/symbols/Sudden.svg">Repetition</option>
+        </select> -->
+      <!-- </div> -->
+      </form>
+
+      <button type="button" onclick="addLMAColumn2()">Add Element Column</button>
+      <button type="button" onclick="setDrawMode()">Done</button>
+
+     </div>
+
+     <div id="miniAddColumsArea">
+
+      <br><p style="font-family:Arial;"> OR </p><br>
+      
+      <!-- <button type="button" onclick="showCustomCols()">Add Custom Elements</button> -->
+      
+      <p style="font-family:Arial;"> Populate a pre-defined emotion model:</p>
+      <button type="button" onclick="addHappyColumns()"> Happy </button>
+      <button type="button" onclick="addAngryColumns()"> Angry </button>
+      <button type="button" onclick="addSadnessColumns()"> Sadness </button>
+      <button type="button" onclick="addFearColumns()"> Fear </button><br><br>
+
+      </div>
+
+     </div>
+
+
+    </div> <!-- blue box -->
+
+
+  <link rel="stylesheet" type="text/css" href="./css/interface.css">
+  <script src="js/interface.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  <script src="js/select_search.js"></script>
+
+  </body>
+</html>
